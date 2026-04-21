@@ -25,7 +25,8 @@ fn main() {
 
     fs::create_dir_all("solutions").expect("Failed to create solutions directory");
     let mut index_file =
-        fs::File::create("solutions/index.md").expect("Failed to create index file");
+        fs::File::create("solutions/Index.md").expect("Failed to create index file");
+    let mut home_file = fs::File::create("solutions/Home.md").expect("Failed to create index file");
 
     let solution_count = solver::breadth_first_solver::Solver::new(board)
         .inspect(|result| {
@@ -49,7 +50,14 @@ fn main() {
 
                 write!(
                     index_file,
-                    "## Solutions with {} marbles left\n\n",
+                    "\n## Solutions with {} marbles left\n\n",
+                    result.marbles_left
+                )
+                .expect("Failed to write to index file");
+
+                write!(
+                    home_file,
+                    "\n## Solutions with {} marbles left\n\n",
                     result.marbles_left
                 )
                 .expect("Failed to write to index file");
@@ -59,8 +67,8 @@ fn main() {
             for (idx, solution) in result.solutions.iter().enumerate().take(20) {
                 fs::write(
                     format!(
-                        "solutions/solutions_{}/solution_{}.md",
-                        result.marbles_left, idx
+                        "solutions/solutions_{}/solution_{}_{}.md",
+                        result.marbles_left, result.marbles_left, idx
                     ),
                     format!(
                         "## Solution {idx}
@@ -81,10 +89,17 @@ fn main() {
 
                 writeln!(
                     index_file,
-                    "- [Solution {}](solutions_{}/solution_{}.md) with {} ways to solve",
-                    idx, result.marbles_left, idx, solution.ways_to_solve
+                    "- [Solution {}](solutions_{}/solution_{}_{}.md) with {} ways to solve",
+                    idx, result.marbles_left, result.marbles_left, idx, solution.ways_to_solve
                 )
                 .expect("Failed to write to index file");
+
+                writeln!(
+                    home_file,
+                    "- [Solution {}](solution_{}_{}) with {} ways to solve",
+                    idx, result.marbles_left, idx, solution.ways_to_solve
+                )
+                .expect("Failed to write to home file");
             }
         })
         .map(|result| result.solutions.len())
