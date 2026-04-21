@@ -10,6 +10,7 @@ left on the board, ideally in the center location.
 ![Solitaire board](https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Spielzug_von_Solit%C3%A4r.gif/330px-Spielzug_von_Solit%C3%A4r.gif)
 
 - [Solutions](solutions/index.md)
+- [Documentation](https://dampfwalze.github.io/solitaire_solver)
 
 This project implements two board representations and two solving schemes,
 namely breadth-first and depth-first search.
