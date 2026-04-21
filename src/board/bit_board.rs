@@ -203,6 +203,7 @@ impl super::Board for Board {
     }
 }
 
+/// Eklundh transpose method
 fn byte_transpose(mut x: u64) -> u64 {
     let mut t;
     t = (x ^ (x >> 7)) & 0x00AA00AA00AA00AA;
