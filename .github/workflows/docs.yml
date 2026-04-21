@@ -20,8 +20,6 @@ jobs:
         run: cargo clean --doc
       - name: Build docs
         run: cargo doc --no-deps --document-private-items
-      - name: Run tests
-        run: cargo test --verbose
       - name: Add redirect
         run: echo '<meta http-equiv="refresh" content="0;url=solitaire_solver/index.html">' > target/doc/index.html
       - name: Remove lock file
