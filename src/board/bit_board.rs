@@ -2,6 +2,69 @@ use std::fmt::{Debug, Display};
 
 use crate::board::ArrayBoard as _;
 
+/// A solitaire board represented as one single 64-bit integer.
+///
+/// The bytes of the integer represent the rows of an 8x8 bit matrix. The first
+/// 7x7 bits of that matrix are used to represent the board:
+///
+/// ```text
+///   0 1 2 3 4 5 6 7
+/// 0 . . x x x . . .
+/// 1 . . x x x . . .
+/// 2 x x x x x x x .
+/// 3 x x x x x x x .
+/// 4 x x x x x x x .
+/// 5 . . x x x . . .
+/// 6 . . x x x . . .
+/// 7 . . . . . . . .
+/// ```
+///
+/// > Note that only 33 locations are valid, so the remaining 31 bits are
+/// > treated as meaningless. To guarantee this meaninglessness, they should
+/// > always be 0. Not all operations are safe without that invariant.
+///
+/// ## Generating legal moves
+///
+/// This implementation makes heavy use of the advantages the bit representation
+/// offers and the properties a legal move has.
+///
+/// ### Legal move properties
+///
+/// - A legal move always operates on exactly 3 locations in a strait line.
+///     - A legal move can be made anywhere on the board, where a strait line of
+///       3 locations exists.
+///     - All possible locations where a strait line of 3 locations exists are
+///       known ahead of time.
+/// - Executing a move is the same as inverting all 3 locations in the line. (An
+///   occupied location becomes empty, an empty location becomes occupied.)
+///
+/// ### Bit matrix properties
+///
+/// - Shifting a bit matrix mask by 1 bit to the left or right corresponds to
+///   translating the mask by 1 location to the right or left on the board.
+/// - Shifting a bit matrix mask by 8 bits to the left or right corresponds to
+///   translating the mask by 1 row downward or upward on the board.
+///
+/// ### Algorithm
+///
+/// The algorithm works by sweeping a 3-bit mask across all possible locations
+/// on the board, where a 3 bits long line would fit on the board. This is done
+/// by shifting a corresponding mask by a specified amount of bits, each
+/// iteration. This amount is specified ahead of time.
+///
+/// Since there are two different masks for a line of 3 (horizontal and
+/// vertical), that result in a different sweeping table, the algorithm needs
+/// two passes.
+///
+/// Each locations needs to be matched against the two patterns in which a legal
+/// move can be made. Since the execution of both moves is the same (inverting
+/// the same 3 bits), the algorithm only needs to check if either of them
+/// matches and then execute the move by inverting the 3 bits that are selected
+/// by the mask.
+///
+/// The algorithm could be improved by computing the mask for each iteration
+/// ahead of time. But since the compiler performs heavy optimizations, it
+/// likely already applies that kind of optimization.
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Board(u64);
 
@@ -19,6 +82,10 @@ impl Board {
 
     const WIDTH: usize = 7;
     const HEIGHT: usize = 7;
+
+    pub fn enforce_invariant(&mut self) {
+        self.0 &= Self::MASK;
+    }
 
     pub fn index_for([x, y]: [isize; 2]) -> Option<usize> {
         if x < 0 || x >= Self::WIDTH as isize || y < 0 || y >= Self::HEIGHT as isize {
@@ -74,7 +141,7 @@ impl super::Board for Board {
         let mut pattern_a = 0b110;
         let mut pattern_b = 0b011;
 
-        const SHIFT_TABLE: &[usize] = &[2, 8, 6, 1, 1, 1, 1, 4, 1, 1, 1, 1, 4, 1, 1, 1, 1, 6, 8];
+        const SHIFT_TABLE: &[u8] = &[2, 8, 6, 1, 1, 1, 1, 4, 1, 1, 1, 1, 4, 1, 1, 1, 1, 6, 8];
 
         for shift in SHIFT_TABLE {
             mask <<= shift;
@@ -94,7 +161,7 @@ impl super::Board for Board {
         let mut pattern_a = 1 | 1 << 8 | 0 << 16;
         let mut pattern_b = 0 | 1 << 8 | 1 << 16;
 
-        const SHIFT_TABLE_V: &[usize] = &[2, 1, 1, 6, 1, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 1, 6, 1, 1];
+        const SHIFT_TABLE_V: &[u8] = &[2, 1, 1, 6, 1, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 1, 6, 1, 1];
 
         for shift in SHIFT_TABLE_V {
             mask <<= shift;

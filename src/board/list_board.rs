@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::board::ArrayBoard as _;
 
+/// A solitaire board represented as a densely packed array of 33 booleans.
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Board([bool; 33]);
 
