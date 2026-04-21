@@ -1,3 +1,4 @@
+#![doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
 #![allow(dead_code)]
 
 use std::{fs, io::Write};
