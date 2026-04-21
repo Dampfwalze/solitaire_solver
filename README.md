@@ -1,5 +1,8 @@
 # Solver for the Solitaire game
 
+[![Test](https://github.com/dampfwalze/solitaire_solver/actions/workflows/test.yaml/badge.svg?branch=master)](https://github.com/dampfwalze/solitaire_solver/actions/workflows/test.yaml?query=branch%3Amaster)
+[![Docs](https://github.com/dampfwalze/solitaire_solver/actions/workflows/docs.yml/badge.svg?branch=master)](https://github.com/dampfwalze/solitaire_solver/actions/workflows/docs.yml?query=branch%3Amaster)
+
 Solitaire is a game that is played by only one player. The game board has 33
 locations, arranged in a cross shape. At the start, 32 of the locations are
 occupied by pegs. Only the center location is empty. The player can move a peg
